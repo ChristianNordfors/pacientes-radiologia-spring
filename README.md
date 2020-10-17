@@ -3,7 +3,7 @@
 <https://radiologia-dispensario.herokuapp.com/>
 
 - CRUD pacientes, turnos y consultas.
-- Tabla dinámica con campos modificables.
+- Tabla dinámica con campos modificables para agendar turnos.
 - Login / seguridad.
 - Vista de estudio PDF.
 

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout/layout :: head"></head>
+<body>
+
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4 animated fadeIn faster">
+
+		<div class="card bg-gray">
+			<h4 class="card-header" th:text="${titulo}"></h4>
+			<div class="card-body">
+
+				<div class="row">
+					<h4 class="card-title col-12">
+
+
+						<a class="btn btn-outline-green float-right px-4  rounded-lg"
+							th:href="@{/listar}"> <i class="fas fa-arrow-left mr-2"></i>Volver
+							al listado
+						</a><a sec:authorize="hasRole('ROLE_ADMIN')"
+							class="btn btn-outline-success px-4 rounded-lg"
+							th:href="@{/form/} + ${paciente.id}" data-toggle="popover-hover"
+							data-placement="top" title="Editar"><i
+							class="far fa-edit mr-2 rounded-lg"></i>Editar</a> <a href=""
+							class="btn btn-outline-warning px-4 rounded-lg"
+							data-toggle="modal" data-target="#modalRayosCrear"
+							data-placement="top" title="Estudios"><i
+							class="fas fa-bolt mr-2"></i>Estudios</a> <a
+							sec:authorize="hasRole('ROLE_ADMIN')" type="button"
+							class="btn btn-outline-danger px-4 rounded-lg"
+							data-toggle="modal" data-target="#exampleModalCenter"
+							data-placement="right" title="Eliminar"> <i
+							class="fas fa-trash-alt mr-2"></i>Eliminar
+						</a>
+
+
+					</h4>
+				</div>
+
+
+				<!-- th:if="${paciente.foto}" -->
+				<!-- th:if="${#strings.length(paciente.foto) > 0}"  -->
+
+
+				<!--  QUITAR PARA MOSTRAR FOTO-----------------------
+				<img th:if="${#strings.length(paciente.foto) > 0}"
+					class="img-thumbnail rounded float-left img-fluid"
+					style="max-width: 300px; max-height: 200px; cursor: pointer;"
+					th:src="@{'/uploads/' + ${paciente.foto}}" th:alt="${paciente.foto}">
+ -->
+
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-primary"
+						th:text="${paciente.nombre}"></li>
+					<li class="list-group-item" th:text="${paciente.apellido}"></li>
+					<li class="list-group-item" th:text="${paciente.dni}"></li>
+					<li class="list-group-item"
+						th:text="${#calendars.format(paciente.createdAt ,'dd MMMM yyyy')}"></li>
+					<li th:if="${paciente.telefono > 0}" class="list-group-item"
+						th:text="${paciente.telefono}"></li>
+					<li th:if="${#strings.length(paciente.email) > 0}"
+						class="list-group-item" th:text="${paciente.email}"></li>
+					<li th:if="${paciente.domicilio}" class="list-group-item"
+						th:text="${paciente.domicilio}"></li>
+				</ul>
+
+
+
+
+
+				<div class="accordion mt-3" th:id="accordionExample">
+					<div class="card" th:each="estudio: ${paciente.estudios}">
+						<div class="card-header" id="headingOne">
+
+							<h4 class="mb-0  align-middle ">
+
+
+
+								<span style="user-select: none;"
+									class=" z-depth-1 rounded-lg py-1 px-3 text-muted"
+									th:text="${#calendars.format(estudio.createdAt ,'dd/MM/yyyy')}"></span>
+								<a class="btn btn-link text-info py-0" type="button"
+									data-toggle="collapse" data-target="#collapseOne"
+									th:attr="data-target='#collapseOne'+${estudio.id}"
+									aria-expanded="true" aria-controls="collapseOne"><i
+									class="fas fa-chevron-circle-down fa-3x"></i></a> <a
+									th:href="@{'/estudio/eliminar/' + ${estudio.id}}"
+									onclick="return confirm('¿Eliminar paciente?')"
+									class="btn btn-danger float-right rounded-lg p-2">Eliminar</a>
+								<a th:href="@{'/estudio/ver/' + ${estudio.id}}"
+									th:text="'Detalle'"
+									class="btn btn-primary float-right rounded-lg p-2">Detalle</a>
+
+							</h4>
+
+						</div>
+
+						<div th:id="'collapseOne'+${estudio.id}" class="collapse"
+							aria-labelledby="headingOne" data-parent="#accordionExample">
+							<div class="card-body">
+
+
+								<div th:replace="estudio/ver :: datosEstudio"></div>
+
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+
+
+
+
+
+				<div th:if="${#lists.isEmpty(paciente.estudios)}"
+					class="alert alert-info my-4"
+					th:text="'No hay estudios asignados para el paciente ' + ${paciente.nombre} + ' ' + ${paciente.apellido}"></div>
+
+
+
+
+
+			</div>
+		</div>
+
+
+
+	</div>
+
+
+
+
+	<!-- Modal rayos -->
+
+	<div class="modal fade" id="modalRayosCrear" tabindex="-1"
+		role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+
+			<form th:action="@{/crear}" th:object="${estudio}" method="post">
+				<div class="modal-content border border-light rounded-lg">
+					<div class="modal-header text-center">
+						<h4 class="modal-title w-100 font-weight-normal"
+							th:text="${tituloModal}"></h4>
+						<span type="button" class="close" data-dismiss="modal"
+							aria-label="Close"> <span aria-hidden="true">&times;</span>
+						</span>
+					</div>
+
+
+					<div class="modal-body mx-3">
+
+						<div class="form-group row">
+							<label for="createdAt" class="col-sm-2 col-form-label">Fecha</label>
+							<div class="col">
+								<input type="date" class="form-control" name="createdAt"
+									required>
+							</div>
+						</div>
+
+						<hr>
+
+						<div class="row">
+
+							<div th:each="radiografia, iter:${radiografias}">
+								<label th:for=${radiografia.id}>
+									<div class="btn btn-outline-gray m-0 btn-md">
+										<div
+											class="custom-control custom-checkbox  d-flex align-items-center">
+
+
+											<input type="checkbox" th:value="${radiografia.id}"
+												name="radiografia" class="custom-control-input"
+												th:id="${radiografia.id}"> <label
+												class="font-weight-normal custom-control-label"
+												th:for=${radiografia.id} style="cursor: pointer;"
+												th:text="${iter.index+1}+' - '+${radiografia.nombre}"></label>
+										</div>
+									</div>
+								</label>
+							</div>
+
+
+						</div>
+
+						<hr>
+
+
+						<!--Textarea with icon prefix-->
+						<div class="md-form">
+							<i class="fas fa-pencil-alt prefix"></i>
+							<textarea id="observacion" class="md-textarea form-control"
+								rows="3" name="observacion"></textarea>
+							<label for="observacion">Observaciones</label>
+						</div>
+
+
+					</div>
+					<div class="modal-footer d-flex justify-content-center">
+						<button type="submit" class="btn btn-primary rounded-lg">
+							Confirmar<i class="fas fa-paper-plane-o ml-1"></i>
+						</button>
+						<a
+							class="btn btn-outline-gray text-primary rounded-lg mt-2 font-weight-bold"
+							data-dismiss="modal" th:text="'Cancelar'"></a>
+
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+	<!-- Modal eliminar -->
+	<div class="modal fade rounded-lg" id="exampleModalCenter"
+		tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+		aria-hidden="true">
+
+		<div
+			class="modal-dialog modal-dialog-centered modal-notify modal-danger rounded-lg"
+			role="document">
+
+
+			<div class="modal-content text-center rounded-lg">
+				<div class="modal-header d-flex justify-content-center">
+					<span role="button" class="close text-white" data-dismiss="modal"
+						aria-label="Close"> <i aria-hidden="true"
+						class="fas fa-times animated rotateIn text-white"></i>
+					</span>
+				</div>
+				<div class="modal-body rounded-lg">
+					<h4 class="text-danger">¿Eliminar paciente?</h4>
+				</div>
+				<div class="modal-footer rounded-lg">
+
+					<a th:href="@{/eliminar/} + ${paciente.id}"
+						class="btn btn-danger rounded-lg">Eliminar</a>
+					<button type="button" class="btn btn-outline-danger rounded-lg"
+						data-dismiss="modal">Cancelar</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer th:replace="layout/layout :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout/layout :: head"></head>
+<body>
+
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4 animated fadeIn faster">
+
+		<div class="card">
+			<h4 class="card-header" th:text="${titulo}"></h4>
+			<div class="card-body" style="overflow-x: auto;">
+
+				<h4 class="card-title text-right">
+					<a sec:authorize="hasRole('ROLE_ADMIN')"
+						class="btn btn-success px-4 rounded-lg" th:href="@{/form}"><i
+						class="fas fa-plus-circle fa-lg mr-2"></i>Agregar paciente</a>
+				</h4>
+
+				<table id="paginationFullNumbers"
+					class="table table-hover table-striped border table-sm">
+					<thead class="thead bg-light text-center">
+						<tr>
+							<th sec:authorize="hasRole('ROLE_USER')">Id</th>
+							<th>Nombre</th>
+							<th>Apellido</th>
+							<th>DNI</th>
+							<th>Fecha</th>
+							<th>Opciones</th>
+
+						</tr>
+					</thead>
+					<tbody class="text-center">
+						<tr th:each="paciente, iter: ${pacientes}">
+							<td sec:authorize="hasRole('ROLE_USER')" class="align-middle"><a
+								class="btn btn-primary p-2 rounded-lg"
+								th:href="@{/ver/} + ${paciente.id}" th:text="${iter.index+1}"></a></td>
+							<td class="align-middle" th:text="${paciente.nombre}"></td>
+							<td class="align-middle" th:text="${paciente.apellido}"></td>
+							<td class="align-middle" th:text="${paciente.dni}"></td>
+							<td class="align-middle"
+								th:text="${#calendars.format(paciente.createdAt ,'dd MMMM yyyy')}"></td>
+							<td><a sec:authorize="hasRole('ROLE_USER')"
+								class="btn btn-primary p-2 rounded-lg"
+								th:href="@{/ver/} + ${paciente.id}" data-toggle="popover-hover"
+								data-placement="top" title="Detalle"><i
+									class="fas fa-info-circle rounded-lg fa-lg"></i></a> <a
+								sec:authorize="hasRole('ROLE_ADMIN')"
+								class="btn btn-success p-2 rounded-lg"
+								th:href="@{/form/} + ${paciente.id}" data-toggle="popover-hover"
+								data-placement="top" title="Editar"><i class="far fa-edit"></i></a>
+								<a onclick="return confirm('¿Eliminar paciente?')"
+								sec:authorize="hasRole('ROLE_ADMIN')"
+								class="btn btn-danger p-2 rounded-lg"
+								th:href="@{'/eliminar/' + ${paciente.id}}"
+								data-placement="right" title="Eliminar paciente"><i
+									class="fas fa-trash-alt"></i></a></td>
+
+						</tr>
+					</tbody>
+				</table>
+
+				<!-- <nav th:replace="paginator-nav :: paginator"></nav> -->
+
+			</div>
+		</div>
+
+
+	</div>
+
+
+
+	<footer th:replace="layout/layout :: footer"></footer>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#paginationFullNumbers').DataTable({
+				"pagingType" : "full_numbers",
+				"order" : [ [ 0, "desc" ] ]
+			});
+			$('.dataTables_length').addClass('bs-select');
+		});
+	</script>
+
+</body>
+</html>

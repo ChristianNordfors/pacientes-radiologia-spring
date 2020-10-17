@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+<head th:replace="layout/layout :: head"></head>
+<body>
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4 animated fadeIn">
+
+		<div class="card">
+			<h4 class="card-header" th:text="${titulo}"></h4>
+			<div class="card-body">
+
+				<h4 class="card-title text-right">
+					<a href=""
+						class="btn btn-outline-warning px-4 rounded-lg float-left"
+						data-toggle="modal" data-target="#modalRayosModificar"
+						data-placement="top" title="Estudios"><i
+						class="fas fa-bolt mr-2"></i>Modificar</a> <a target="_blank"
+						class="btn btn-outline-danger rounded-lg float-left px-4"
+						th:href="@{'/estudio/ver/' + ${estudio.id}(format=pdf)}"><i
+						class="fas fa-print mr-1"></i>PDF</a> <a
+						th:href="@{'/ver/' + ${estudio.paciente.id}}"
+						class="btn btn-outline-green px-3"><i
+						class="fas fa-arrow-left fa-lg mr-2"></i>Volver al paciente</a>
+				</h4>
+
+				<ul class="list-group mb-2">
+					<li class="list-group-item list-group-item-info">Datos del
+						paciente</li>
+					<li class="list-group-item"
+						th:text="${estudio.paciente.nombre} + ' ' + ${estudio.paciente.apellido}"></li>
+					<li class="list-group-item" th:text="${estudio.paciente.dni}"></li>
+				</ul>
+
+				<ul class="list-group py-2">
+					<li class="list-group-item list-group-item-success">Datos del
+						estudio</li>
+					<!-- <li class="list-group-item" th:text="${estudio.descripcion}"></li> -->
+					<li class="list-group-item"
+						th:text="${#calendars.format(estudio.createdAt ,'dd MMMM yyyy')}"></li>
+				</ul>
+
+				<div th:fragment="datosEstudio">
+
+					<ul class="list-group py-2">
+						<li class="list-group-item list-group-item-warning">Radiografías</li>
+						<li class="list-group-item"
+							th:each="practica:${estudio.practicas}"
+							th:text="${practica.radiografia.nombre}"></li>
+
+					</ul>
+
+
+					<div class="card border-info my-2" style="max-width: 20rem;">
+						<div class="card-header">Observaciones</div>
+						<div class="card-body">
+							<p class="card-text"
+								th:if="${not #strings.isEmpty(estudio.observacion)}"
+								th:text="${estudio.observacion}"></p>
+							<h5 class="card-title"
+								th:if="${#strings.isEmpty(estudio.observacion)}"
+								th:text="'No tiene observaciones'"></h5>
+						</div>
+					</div>
+				</div>
+
+
+				<a th:href="@{/listar}"
+					class="btn btn-outline-green px-3 float-right"><i
+					class="fas fa-arrow-left fa-lg mr-2"></i>Volver al listado</a>
+
+
+			</div>
+
+		</div>
+
+
+
+	</div>
+
+	<!-- Modal rayos -->
+
+	<div class="modal fade" id="modalRayosModificar" tabindex="-1"
+		role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<form th:action="@{/crear}" th:object="${estudio}" method="post">
+				<div class="modal-content border border-light rounded-lg">
+					<div class="modal-header text-center">
+						<h4 class="modal-title w-100 font-weight-normal">Editar
+							estudio</h4>
+						<span type="button" class="close" data-dismiss="modal"
+							aria-label="Close"> <span aria-hidden="true">&times;</span>
+						</span>
+					</div>
+
+
+					<div class="modal-body mx-3">
+
+						<div class="form-group row">
+							<label for="createdAt" class="col-sm-2 col-form-label">Fecha</label>
+							<div class="col">
+								<input type="date" class="form-control" name="createdAt"
+									th:field="*{createdAt}"
+									th:errorclass="'form-control alert-danger'"> <small
+									class="form-text text-danger"
+									th:if="${#fields.hasErrors('createdAt')}"
+									th:uerrors="*{createdAt}"></small>
+							</div>
+						</div>
+
+
+						<hr>
+
+						<div
+							class="alert alert-info my-3 font-weight-bold  align-items-center text-center">
+							<i class="fas fa-info-circle mr-2"></i>Marcar todas las
+							radiografías nuevamente para modificar.</span>
+						</div>
+
+						<div class="row">
+
+							<div th:each="radiografia,iter:${radiografias}">
+								<label th:for=${radiografia.id}>
+									<div class="btn btn-outline-gray m-0 btn-md">
+										<div
+											class="custom-control custom-checkbox  d-flex align-items-center">
+
+
+											<input type="checkbox" th:value="${radiografia.id}"
+												name="radiografia" class="custom-control-input"
+												th:id="${radiografia.id}"> <label
+												class="font-weight-normal custom-control-label"
+												th:for=${radiografia.id} style="cursor: pointer;"
+												th:text="${iter.index+1}+' - '+${radiografia.nombre}"></label>
+										</div>
+									</div>
+								</label>
+							</div>
+
+
+						</div>
+						<hr>
+
+						<!--Textarea with icon prefix-->
+						<div class="md-form">
+							<i class="fas fa-pencil-alt prefix"></i>
+							<textarea id="observacion" class="md-textarea form-control"
+								rows="3" th:field="*{observacion}"></textarea>
+							<label for="observacion">Observaciones</label>
+						</div>
+
+
+
+					</div>
+					<div class="modal-footer d-flex justify-content-center">
+						<button type="submit" class="btn btn-primary rounded-lg">
+							Confirmar<i class="fas fa-paper-plane-o ml-1"></i>
+						</button>
+						<a
+							class="btn btn-outline-gray text-primary rounded-lg mt-2 font-weight-bold"
+							data-dismiss="modal" th:text="'Cancelar'"></a>
+
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+
+	<footer th:replace="layout/layout :: footer"></footer>
+
+</body>
+</html>

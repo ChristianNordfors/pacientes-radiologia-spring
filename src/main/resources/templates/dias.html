@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout/layout :: head"></head>
+<body>
+
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4 animated fadeIn faster">
+
+
+		<div class="card">
+			<h4 class="card-header" th:text="${titulo}"></h4>
+			<div class="card-body"  style="overflow-x:auto; ">
+
+
+				<h4 class="card-title text-right">
+					<span th:each="dia: ${dias}"> <a
+						th:if="${#temporals.format(localDateTime, 'dd/MM/yyyy')} == ${#calendars.format(dia.fecha ,'dd/MM/yyyy')}"
+						th:href="@{'/ver-dia/'} + ${dia.id}"
+						class="btn btn-outline-primary float-left px-3 rounded-lg"
+						data-toggle="tooltip"
+						th:title="${#calendars.format(dia.fecha ,'dd/MM/yyyy')}"><i
+							class="far fa-calendar-check mr-2"></i>Ver turnos de hoy</a>
+					</span> <a sec:authorize="hasRole('ROLE_ADMIN')" data-toggle="modal"
+						data-target="#modalNuevoDia"
+						class="btn btn-success px-4 rounded-lg"><i
+						class="fas fa-plus-circle fa-lg mr-2"></i>Agregar día</a>
+				</h4>
+
+				<table id="paginationFullNumbers"
+					class="table table-hover table-striped border table-sm">
+					<thead class="thead bg-light text-center">
+						<tr>
+
+
+							<th>Fecha</th>
+							<th>Turnos</th>
+							<th>Observaciones</th>
+							<th>Opciones</th>
+
+						</tr>
+					<tbody class="text-center">
+						<tr th:each="dia: ${dias}">
+
+							<!--  
+							<td class="align-middle"
+								th:text="${#calendars.format(dia.fecha ,'dd/MM/yyyy')}"></td> -->
+
+
+							<td class="align-middle badge badge-success p-1 mt-3 rounded-lg"
+								th:if="${#temporals.format(localDateTime, 'dd/MM/yyyy')} == ${#calendars.format(dia.fecha ,'dd/MM/yyyy')}"
+								th:text="'HOY ' + ${#calendars.format(dia.fecha ,'dd/MM/yyyy')}">
+							</td>
+
+							<td class="align-middle"
+								th:if="${#temporals.format(localDateTime, 'dd/MM/yyyy')} != ${#calendars.format(dia.fecha ,'dd/MM/yyyy')}"
+								th:text="${#calendars.format(dia.fecha ,'dd/MM/yyyy')}"></td>
+
+
+
+
+							<td th:if="${dia.cantidad > 0}" class="align-middle"
+								th:text="${dia.cantidad}"></td>
+							<td th:if="${dia.cantidad == 0}"
+								class="text-danger font-weight-bold align-middle rounded-lg mt-4 p-1"
+								th:text="'NO DAR TURNOS'"></td>
+
+							<td class="align-middle" th:text="${dia.observacion}"></td>
+
+
+							<td><a sec:authorize="hasRole('ROLE_USER')"
+								class="btn btn-primary py-2 px-3 rounded-lg"
+								th:href="@{'/ver-dia/'} + ${dia.id}" data-toggle="popover-hover"
+								data-placement="top" title="Detalle"><i
+									class="fas fa-info-circle rounded-lg"></i></a> <!-- 
+								<a sec:authorize="hasRole('ROLE_ADMIN')"
+								class="btn btn-success px-3 rounded-lg"
+								th:href="@{/form/} + ${dia.id}" data-toggle="popover-hover"
+								data-placement="top" title="Editar"><i class="far fa-edit"></i></a>
+								
+								--> <a onclick="return confirm('¿Eliminar día?')"
+								sec:authorize="hasRole('ROLE_ADMIN')"
+								class="btn btn-danger py-2 px-3 rounded-lg"
+								th:href="@{'/eliminar-dia/' + ${dia.id}}" data-placement="right"
+								title="Eliminar paciente"><i class="fas fa-trash-alt"></i></a> <!-- 
+									<a
+								sec:authorize="hasRole('ROLE_ADMIN')" type="button"
+								class="btn btn-default px-3 rounded-lg fa-lg"
+								th:href="@{'factura/form/' + ${cliente.id}}"
+								data-placement="right" title="Factura"> <i
+									class="fas fa-file-invoice-dollar"></i></a>
+
+								 --></td>
+
+						</tr>
+					</tbody>
+					</thead>
+				</table>
+
+
+
+
+
+				<!-- <nav th:replace="paginator-nav :: paginator"></nav> -->
+
+
+			</div>
+		</div>
+
+
+	</div>
+
+
+	<!-- Modal nuevo dia   -->
+
+	<div class="modal fade" id="modalNuevoDia" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<!-- 		<form th:action="@{/crear}"  method="post"> -->
+			<form th:action="@{/turnos}" th:object="${dia}" method="post">
+				<div class="modal-content border border-light rounded-lg">
+					<div class="modal-header text-center">
+						<h4 class="modal-title w-100 font-weight-normal">Agregar
+							día</h4>
+						<span type="button" class="close" data-dismiss="modal"
+							aria-label="Close"> <span aria-hidden="true">&times;</span>
+						</span>
+					</div>
+
+
+					<div class="modal-body mx-4">
+
+						<div class="form-group row py-3">
+							<label for="fecha" class="col-sm-2 col-form-label">Fecha</label>
+							<div class="col">
+								<input type="date" class="form-control" name="fecha"
+									th:field="*{fecha}" th:errorclass="'form-control alert-danger'"
+									required> <small class="form-text text-danger"
+									th:if="${#fields.hasErrors('fecha')}" th:uerrors="*{fecha}"></small>
+
+							</div>
+						</div>
+
+
+						<hr>
+
+						<div class="form-group row py-3">
+
+							<label for="cantidad" class="col-sm-5 col-form-label">Cantidad
+								de turnos</label>
+							<div class="col-sm-7">
+								<input class="form-control" type="number" value="12"
+									id="cantidad" name="cantidad">
+							</div>
+						</div>
+						<hr>
+
+
+						<!--Textarea with icon prefix-->
+						<div class="md-form mt-5">
+							<i class="fas fa-pencil-alt prefix"></i>
+							<textarea id="observacion" class="md-textarea form-control"
+								name="observacion" rows="3"></textarea>
+							<label for="observacion">Observaciones</label>
+						</div>
+
+						<!-- 
+					
+					
+					
+					 th:field="*{observacion}"
+					 -->
+
+
+					</div>
+					<div class="modal-footer d-flex justify-content-center">
+						<button type="submit" class="btn btn-primary rounded-lg"
+							th:text="${boton}">
+							<i class="fas fa-paper-plane-o ml-1"></i>
+						</button>
+						<a
+							class="btn btn-outline-gray text-primary rounded-lg mt-2 font-weight-bold"
+							data-dismiss="modal" th:text="'Cancelar'"></a>
+
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+
+	<footer th:replace="layout/layout :: footer"></footer>
+
+	<script type="text/javascript">
+	
+
+		$(document).ready(function() {
+			$('#paginationFullNumbers').DataTable({
+				"pagingType" : "full_numbers",
+				"order" : [ [ 0, "desc" ] ]
+			});
+			$('.dataTables_length').addClass('bs-select');
+		});
+	</script>
+
+</body>
+</html>

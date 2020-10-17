@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+<head th:replace="layout/layout :: head"></head>
+<body>
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4">
+
+		<div class="card">
+			<h4 class="card-header"
+				th:text="${titulo} + ' ' + ${#calendars.format(dia.fecha ,'dd/MM/yyyy')} + ' - Cantidad:  ' + ${dia.cantidad}"></h4>
+			<div class="card-body">
+
+				<h4 class="card-title text-right">
+					<a href=""
+						class="btn btn-outline-success px-4 rounded-lg float-left"
+						data-toggle="modal" data-target="#modalDiaModificar"
+						data-placement="top" title="Estudios"><i
+						class="far fa-edit mr-2 rounded-lg"></i>Editar</a> <a
+						th:href="@{/turnos}" class="btn btn-outline-green px-3 rounded-lg"><i
+						class="fas fa-arrow-left fa-lg mr-2"></i>Volver al listado</a>
+				</h4>
+
+				<div th:if="${#lists.size(dia.turnos)<4}" class="card border-info">
+					<h5 class="card-header h5">Información importante</h5>
+					<div class="card-body">
+						<p class="card-title">Pacientes que sean derivados deben tener
+							un turno asignado.</p>
+						<hr>
+						<p class="card-title">2 radiograías equivalen a 1 turno. Más
+							de 5 imágenes con turno programado.</p>
+						<hr th:if="${#strings.length(dia.observacion)>0}">
+						<p class="card-title text-primary mb-0"
+							th:if="${#strings.length(dia.observacion)>0}"
+							th:text="${dia.observacion}"></p>
+					</div>
+				</div>
+
+
+				<div class="accordion mt-3" id="accordionInformacion">
+					<div th:if="${#lists.size(dia.turnos)>3}" class="card border-info">
+						<h5 class="card-header h5 py-0" id="cardInofmacion">
+							Información importante <a class="btn btn-link text-info py-0"
+								type="button" data-toggle="collapse"
+								data-target="#collapseCardBody" aria-expanded="true"
+								aria-controls="collapseCardBody"><i
+								class="fas fa-chevron-circle-down fa-3x"></i></a>
+						</h5>
+						<div id="collapseCardBody" class="collapse"
+							aria-labelledby="cardInofmacion"
+							data-parent="#accordionInformacion">
+							<div class="card-body">
+								<p class="card-title">Pacientes que sean derivados deben
+									tener un turno asignado</p>
+								<hr>
+								<p class="card-title">2 radiograías equivalen a 1 turno. Más
+									de 5 imágenes con turno programado.</p>
+								<hr th:if="${#strings.length(dia.observacion)>0}">
+								<p class="card-title text-primary mb-0"
+									th:if="${#strings.length(dia.observacion)>0}"
+									th:text="${dia.observacion}"></p>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<hr>
+
+
+
+
+
+				<div th:if="${dia.cantidad == 0}"
+					class="alert alert-danger mt-3 text-center py-2">
+					<h3 class="mt-1">¡No dar turnos!</h3>
+				</div>
+
+				<div th:if="${#lists.size(dia.turnos)} > ${dia.cantidad}"
+					class="alert alert-danger text-center rounded-lg py-2 my-2 border-light">
+					<strong><i class="fas fa-info-circle mr-2 fa-lg"></i>Límite
+						de turnos excedido</strong>
+				</div>
+				<div th:if="${#lists.size(dia.turnos)} == ${dia.cantidad}"
+					class="alert alert-warning text-center rounded-lg py-2 my-2 border-light">
+					<strong><i class="fas fa-info-circle mr-2 fa-lg"></i>Límite
+						de turnos alcanzado</strong>
+				</div>
+				<div th:if="${#lists.size(dia.turnos)} == ${dia.cantidad-1}"
+					class="alert alert-info text-center rounded-lg py-2 my-2 border-light">
+					<strong><i class="fas fa-info-circle mr-2 fa-lg"></i>Queda
+						un turno disponible</strong>
+				</div>
+
+
+				<div class="card mb-4">
+					<form th:action="@{/crear-turno}" th:object="${turno}"
+						method="post" class="card-body pt-0 pb-1">
+						<div class="form-row align-items-center mt-2">
+							<div class="col-sm-2  my-0">
+								<label class="sr-only" for="nombre">Nombre</label> <input
+									autofocus class="form-control" id="nombre" name="nombre"
+									placeholder="Nombre">
+							</div>
+
+							<div class="col-sm-2 my-0">
+								<label class="sr-only" for="apellido">Apellido</label> <input
+									class="form-control" id="apellido" name="apellido"
+									placeholder="Apellido">
+							</div>
+
+							<div class="col-sm-3 my-0">
+								<label class="sr-only" for="observacion">Observaciones</label>
+								<textarea class="form-control" id="observacion"
+									name="observacion" placeholder="Observaciones" rows="1"
+									cols="1"></textarea>
+							</div>
+
+
+							<select name="urgente"
+								class="custom-select custom-select-sm col-sm-2 my-0 ml-1">
+								<!--    <option selected disabled>Open this select menu</option>-->
+								<option value="normal">Normal</option>
+								<option value="consultar" class="text-warning">Consultar</option>
+								<option value="urgente" class="text-danger">Urgente</option>
+							</select>
+
+
+							<!--  
+				<div class="col-sm-2 my-0 ">
+					<div class="form-check">
+					<input type="checkbox" class="form-control-sm align-middle" id="urgente" name="urgente">
+					<label class="form-check-label align-middle" for="urgente"  style="cursor:pointer;">Urgente</label>
+					</div>			
+					</div>
+					-->
+
+
+
+							<div class="col text-right">
+								<button sec:authorize="hasRole('ROLE_ADMIN')" type="submit"
+									class="btn btn-outline-success px-4 rounded-lg"
+									onclick="scrollBottom()">
+									<i class="fas fa-plus-circle fa-lg mr-2"></i>Agregar turno
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+
+
+				<!-- 
+				<thead class="thead-light px-0">
+						<tr>
+							<th>#</th>
+							<th>Nombre</th>
+							<th>Apellido</th>
+							<th>Observaciones</th>
+							<th>Urgencia</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')">Opciones</th>
+						</tr>
+					</thead>
+				 -->
+
+				<div th:if="${#lists.isEmpty(dia.turnos)} and ${dia.cantidad != 0}"
+					class="alert alert-info mt-3 text-center"
+					th:text="'No hay turnos asignados para este día.'"></div>
+
+				<!-- <form th:action="@{/modificar-turno}" th:object="${turno}" method="post"> -->
+				<form th:each="turno, iter	: ${dia.turnos}"
+					th:action="@{/modificar-turno/} + ${turno.id}" th:object="${turno}"
+					method="post">
+
+
+					<table th:if="${!#lists.isEmpty(dia.turnos)}"
+						class="table table-striped border my-0 text-center table-sm">
+
+
+						<tbody>
+
+
+							<tr>
+
+								<td class="align-middle" th:text="${iter.index+1}"></td>
+
+								<td class="md-form align-middle"><input autocomplete="off"
+									placeholder="Nombre" class="form-control-sm" name="nombre"
+									th:value="${turno.nombre}"></td>
+								<td class="md-form"><input autocomplete="off"
+									placeholder="Apellido" class="form-control-sm" name="apellido"
+									th:value="${turno.apellido}"></td>
+								<td class="md-form"><input th:title="${turno.observacion}"
+									autocomplete="off" placeholder="Observaciones"
+									class="form-control-sm" name="observacion"
+									th:value="${turno.observacion}"></input></td>
+								<!--	<td class="md-form"><textarea class="md-textarea" name="observacion" th:value="${turno.observacion}"></textarea></td>  -->
+
+
+								<!--	<input type="checkbox" class="form-control-sm align-middle" th:id="${turno.id}" name="urgente" th:value="${turno.urgente}" > 
+							<td>
+							<label class="form-check-label align-middle" th:for="${turno.id}"><span  class="badge badge-danger rounded-lg">URGENTE</span>asd</label>
+							</td>
+						-->
+
+								<td style="width: 18%"><span class="badge badge-light"
+									th:if="${turno.urgente == 'normal'}">T.Normal</span> <span
+									class="badge badge-warning"
+									th:if="${turno.urgente == 'consultar'}">Consultar</span> <span
+									class="badge badge-danger"
+									th:if="${turno.urgente == 'urgente'}">Urgente</span> <select
+									name="urgente" class="custom-select custom-select-sm col-sm-6">
+										<option value="''" selected disabled>Cambiar</option>
+										<option value="normal">Normal</option>
+										<option value="consultar" class="text-warning">Consultar</option>
+										<option value="urgente" class="text-danger">Urgente</option>
+								</select></td>
+
+								<td sec:authorize="hasRole('ROLE_ADMIN')">
+
+
+
+									<button type="submit"
+										class="btn btn-success btn-xs py-1 px-2 rounded-lg"
+										onclick="return confirm('¿Modificar turno?')">
+										<i class="fas fa-pencil-alt"></i>
+									</button> <a class="btn btn-danger btn-xs py-1 px-2 rounded-lg"
+									th:href="@{'/eliminar-turno/' + ${turno.id}}"
+									onclick="return confirm('¿Eliminar turno?')"><i
+										class="fas fa-trash-alt"></i></a> <!-- 
+								<a id="botonEditar" data-toggle="modal" data-target='#modalTurnoModificar' class="btn btn-warning btn-xs py-1 px-2 rounded-lg"
+								th:href="@{'/seleccionar-turno/'+${turno.id}}"
+								><i class="fas fa-pencil-alt"></i></a>
+								 -->
+
+
+								</td>
+
+
+
+
+							</tr>
+
+						</tbody>
+
+					</table>
+				</form>
+				<div th:if="${#lists.size(dia.turnos)} > ${dia.cantidad}"
+					class="alert alert-danger text-center rounded-lg py-2 my-2 border-light">
+					<strong><i class="fas fa-info-circle mr-2 fa-lg"></i>Límite
+						de turnos excedido</strong>
+				</div>
+				<div th:if="${#lists.size(dia.turnos)} == ${dia.cantidad}"
+					class="alert alert-warning text-center rounded-lg py-2 my-2 border-light">
+					<strong><i class="fas fa-info-circle mr-2 fa-lg"></i>Límite
+						de turnos alcanzado</strong>
+				</div>
+
+			</div>
+
+
+
+		</div>
+
+	</div>
+
+
+
+
+
+
+	<!-- Modal modificar dia   -->
+
+	<div class="modal fade" id="modalDiaModificar" tabindex="-1"
+		role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<!-- 		<form th:action="@{/crear}"  method="post"> -->
+			<form th:action="@{/turnos}" th:object="${dia}" method="post">
+				<div class="modal-content border border-light rounded-lg">
+					<div class="modal-header text-center">
+						<h4 class="modal-title w-100 font-weight-normal">Modificar
+							día</h4>
+						<span type="button" class="close" data-dismiss="modal"
+							aria-label="Close"> <span aria-hidden="true">&times;</span>
+						</span>
+					</div>
+
+
+					<div class="modal-body mx-4">
+
+						<div class="form-group row py-3">
+							<label for="fecha" class="col-sm-2 col-form-label">Fecha</label>
+							<div class="col">
+								<input type="date" class="form-control" name="fecha"
+									th:field="*{fecha}" th:errorclass="'form-control alert-danger'"
+									required> <small class="form-text text-danger"
+									th:if="${#fields.hasErrors('fecha')}" th:uerrors="*{fecha}"></small>
+
+							</div>
+						</div>
+
+
+						<hr>
+
+						<div class="form-group row py-3">
+
+							<label for="cantidad" class="col-sm-6 col-form-label">Cantidad
+								de turnos</label>
+							<div class="col-sm-6">
+								<input class="form-control" type="number" value="12"
+									id="cantidad" name="cantidad" min="0">
+							</div>
+						</div>
+						<hr>
+
+
+						<!--Textarea with icon prefix-->
+						<div class="md-form mt-5">
+							<i class="fas fa-pencil-alt prefix"></i>
+							<textarea id="observacion" class="md-textarea form-control"
+								name="observacion" th:field="*{observacion}" rows="3"></textarea>
+							<label for="observacion">Observaciones</label>
+						</div>
+
+						<!-- 
+					
+					
+					
+					 th:field="*{observacion}"
+					 -->
+
+
+					</div>
+					<div class="modal-footer d-flex justify-content-center">
+						<button type="submit" class="btn btn-primary rounded-lg">
+							<i class="fas fa-paper-plane-o ml-1"></i>Actualizar
+						</button>
+						<a
+							class="btn btn-outline-gray text-primary rounded-lg font-weight-bold"
+							data-dismiss="modal" th:text="'Cancelar'"></a>
+
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+
+	<footer th:replace="layout/layout :: footer"></footer>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			window.scrollTo(0, document.body.scrollHeight);
+		});
+	</script>
+
+</body>
+</html>

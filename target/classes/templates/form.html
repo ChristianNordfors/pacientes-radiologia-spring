@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout/layout :: head"></head>
+<body>
+
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4 animated fadeIn faster">
+
+		<div class="card">
+			<h4 class="card-header" th:text="${titulo}"></h4>
+			<div class="card-body">
+
+				<div class="row">
+					<div class="col-sm-12">
+						<a class="btn btn-outline-green float-right px-4 rounded-lg"
+							th:href="@{/listar}"> <i class="fas fa-arrow-left mr-2"></i>Volver
+							al listado
+						</a>
+					</div>
+				</div>
+
+				<div th:object="${paciente}" th:remove="tag">
+					<ul th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+						<li th:each="err: ${#fields.errors('*')}" th:text="${err}"></li>
+					</ul>
+				</div>
+
+				<form th:action="@{/form}" th:object="${paciente}" method="post"
+					enctype="multipart/form-data">
+
+					<div class="form-group row">
+						<label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="text" th:field="*{nombre}"
+								th:errorclass="'form-control alert-danger'"> <small
+								class="form-text text-danger"
+								th:if="${#fields.hasErrors('nombre')}" th:uerrors="*{nombre}"></small>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="apellido" class="col-sm-2 col-form-label">Apellido</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="text" th:field="*{apellido}"
+								th:errorclass="'form-control alert-danger'"> <small
+								class="form-text text-danger"
+								th:if="${#fields.hasErrors('apellido')}"
+								th:uerrors="*{apellido}"></small>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="dni" class="col-sm-2 col-form-label">DNI</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="number" th:field="*{dni}"
+								th:errorclass="'form-control alert-danger'"> <small
+								class="form-text text-danger"
+								th:if="${#fields.hasErrors('dni')}" th:uerrors="*{dni}"></small>
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+						<label for="createdAt" class="col-sm-2 col-form-label">Fecha</label>
+						<div class="col-sm-6">
+							<input type="date" class="form-control" name="createdAt"
+								th:field="*{createdAt}"
+								th:errorclass="'form-control alert-danger'"> <small
+								class="form-text text-danger"
+								th:if="${#fields.hasErrors('createdAt')}"
+								th:uerrors="*{createdAt}"></small>
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+						<label for="telefono" class="col-sm-2 col-form-label">Teléfono</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="number" th:field="*{telefono}"
+								th:errorclass="'form-control alert-danger'"> <small
+								class="form-text text-danger"
+								th:if="${#fields.hasErrors('telefono')}"
+								th:uerrors="*{telefono}"></small>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="email" class="col-sm-2 col-form-label">Email</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="email" th:field="*{email}"
+								th:errorclass="'form-control alert-danger'"> <small
+								class="form-text text-danger"
+								th:if="${#fields.hasErrors('email')}" th:uerrors="*{email}"></small>
+						</div>
+					</div>
+
+
+
+					<div class="form-group row">
+						<label for="domicilio" class="col-sm-2 col-form-label">Domicilio</label>
+						<div class="col-sm-6">
+							<textarea class="form-control" type="text"
+								th:field="*{domicilio}"
+								th:errorclass="'form-control alert-danger'"></textarea>
+							<small class="form-text text-danger"
+								th:if="${#fields.hasErrors('domicilio')}"
+								th:uerrors="*{domicilio}"></small>
+						</div>
+					</div>
+
+					<div class="form-group row d-none">
+						<label for="file" class="col-sm-2 col-form-label">Foto</label>
+						<div class="col-sm-6">
+							<input type="file" name="file" class="form-control">
+						</div>
+					</div>
+
+					<div class="col-12 text-center">
+
+						<input class="btn btn-primary mt-2 rounded-lg" type="submit"
+							th:value="${botonEnviar}"> <a th:if="${paciente.id}"
+							class="btn btn-outline-gray text-primary rounded-lg mt-2"
+							th:href="@{/ver/} + ${paciente.id}" th:text="'Cancelar'"></a>
+
+
+					</div>
+
+					<!-- <input type="hidden" th:field="*{id}">  -->
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<footer th:replace="layout/layout :: footer"></footer>
+
+</body>
+</html>
